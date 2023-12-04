@@ -58,8 +58,8 @@ class Calculator {
   
       this.result = result;
     } catch (error) {
-      console.error("Error in calculation:", error.message);
       throw new Error("Invalid expression");
+
     }
   }
   
