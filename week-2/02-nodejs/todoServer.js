@@ -39,11 +39,71 @@
 
   Testing the server - run `npm run test-todoServer` command in terminal
  */
-  const express = require('express');
-  const bodyParser = require('body-parser');
+
+const express = require('express');
+const bodyParser = require('body-parser');
+const fs = require('fs')
+const path = require('path');
+const filePath = path.join(__dirname,'todoFile.txt')
+let todos = []
+const app = express();
+app.use(bodyParser.json());
+
+function generateRandomId() {
+  const randomId = Math.floor(Math.random() * 9000000000) + 1000000000;
+  return randomId.toString();
+}
+
+
+fs.readFile(filePath,'utf8',(err,fileContent)=>{
+  if (err)return 
+  todos = JSON.parse(`[${fileContent}]`);
+})
+
+app.get('/todos',(req,res)=>{
+  fs.readFile(filePath,'utf8',(err,fileContent)=>{
+    if (err){
+      res.send('couldnt fetched')
+      return
+    }
+    const todos = JSON.parse(`[${fileContent}]`);
+    console.log(todos)
+    res.send("feteched all")
+  })
   
-  const app = express();
+})
+
+app.post('/todos',(req,res)=>{
+  const task = {};
+  const id  = generateRandomId()
+  const {title,description} = req.body
+  task["id"] = id
+  task["title"] = title
+  task["description"]= description
+  let comma = ''
+  if (todos.length>0)comma=','
+  todos.push(task)
+  ans  =  comma +JSON.stringify(task);
+  fs.appendFile(filePath,ans,(error)=>{
+    if (error) {
+      console.log('error while appending',error)
+      return 
+    }
+    console.log('done appending new tasks')
+    return 
+  })
+  res.send("<h1>NEW TASK HAS BEEN ADDED")
+
+})
+
+
+app.listen(3000,()=>{
+  console.log('listenening')
+})
+
+
+module.exports = app;
+
+
   
-  app.use(bodyParser.json());
-  
-  module.exports = app;
+// module.exports = app;
