@@ -8,12 +8,19 @@
     "2-sleep-completely": "npx jest ./tests/2-sleep-completely.test.js",
     "3-promise-all": "npx jest ./tests/3-promise-all.test.js",
     "4-promise-chain": "npx jest ./tests/4-promise-chain.test.js",
-    "all": "npx jest ./tests/"
+    "all": "npx jest ./tests/",
+    "test": "jest"
+
+    
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "jest": "^29.7.0"
+    "test": "^3.3.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "mocha": "^10.2.0"
   }
 }
