@@ -44,35 +44,28 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs')
 const path = require('path');
+const { type } = require('os');
 const filePath = path.join(__dirname,'todoFile.txt')
 let todos = []
 const app = express();
-app.use(bodyParser.json());
+app.use(express.json());
 
 function generateRandomId() {
   const randomId = Math.floor(Math.random() * 9000000000) + 1000000000;
   return randomId.toString();
 }
 
-
+// reading old data from file if theres
 fs.readFile(filePath,'utf8',(err,fileContent)=>{
   if (err)return 
   todos = JSON.parse(`[${fileContent}]`);
 })
-
+// already fetched above so return directly
 app.get('/todos',(req,res)=>{
-  fs.readFile(filePath,'utf8',(err,fileContent)=>{
-    if (err){
-      res.send('couldnt fetched')
-      return
-    }
-    const todos = JSON.parse(`[${fileContent}]`);
-    console.log(todos)
-    res.send("feteched all")
-  })
-  
+  res.status(200).json(todos)
 })
 
+// adding new task to todo list
 app.post('/todos',(req,res)=>{
   const task = {};
   const id  = generateRandomId()
@@ -80,23 +73,81 @@ app.post('/todos',(req,res)=>{
   task["id"] = id
   task["title"] = title
   task["description"]= description
+  contentToVerify = ''
+  fs.readFile(filePath,'utf8',(err,fileContent)=>{
+    if (err)return 
+    contentToVerify = fileContent
+  })
+  console.log(contentToVerify)
   let comma = ''
-  if (todos.length>0)comma=','
+  if (todos.length>0 || contentToVerify !== '')comma=','
   todos.push(task)
   ans  =  comma +JSON.stringify(task);
   fs.appendFile(filePath,ans,(error)=>{
     if (error) {
       console.log('error while appending',error)
+      res.status(500).json('error while appending')
       return 
     }
     console.log('done appending new tasks')
     return 
   })
-  res.send("<h1>NEW TASK HAS BEEN ADDED")
+  res.status(201).json(id)
 
 })
 
+// fetching task with specific todoId
+app.get('/todos:id',(req,res)=>{
+  const todoId = parseInt(req.params.id)
+  let answer_idx = todos.findIndex(el => el.id == todoId);
+  if(answer_idx===-1) {
+    res.status(404).json(`cant find task with id ${todoId}`)
+    return 
+  }
+  res.status(200).json(todos[answer_idx])
+  
+})
 
+// updating the task with specific todoId and updating file too
+app.put('/todos:id',(req,res)=>{
+  let todoID = req.params.id;
+  let newTask = req.body
+  let answer_idx = todos.findIndex(el=>el.id==todoID);
+  if (answer_idx===-1){
+    res.status(404).json('cant find task with',todoID)
+    return
+  }
+  newTask["id"] = todoID
+  todos[answer_idx]=newTask
+  const newContentOfFile = JSON.stringify(todos).slice(1,-1);
+  fs.writeFile(filePath,newContentOfFile,(error)=>{
+    if (error)return 
+
+  })
+  res.status(200).json("done updating")
+  
+
+})
+
+// DELETE a task with specific todoId and update the file too
+app.delete('/todos:id',(req,res)=>{
+  let todoID = req.params.id;
+  let answer_idx = todos.findIndex(el=>el.id==todoID);
+  if (answer_idx===-1){
+    res.status(404).json('cant find task with',todoID)
+    return
+  }
+  todos[answer_idx] = '';
+  todos = todos.filter(el=>el!=='')
+  // here i am getting str of king [{},{},'' ] so slice
+  const newContentOfFile = JSON.stringify(todos).slice(1,-1);
+  fs.writeFile(filePath,newContentOfFile,(error)=>{
+    if (error)return 
+  })
+  res.status(200).json("done deleting")
+})
+
+// listiening
 app.listen(3000,()=>{
   console.log('listenening')
 })
