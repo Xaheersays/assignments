@@ -46,9 +46,10 @@ const fs = require('fs')
 const path = require('path');
 const { type } = require('os');
 const filePath = path.join(__dirname,'todoFile.txt')
-let todos = []
 const app = express();
-app.use(express.json());
+app.use(bodyParser.json());
+
+let todos = []
 
 function generateRandomId() {
   const randomId = Math.floor(Math.random() * 9000000000) + 1000000000;
@@ -62,7 +63,7 @@ fs.readFile(filePath,'utf8',(err,fileContent)=>{
 })
 // already fetched above so return directly
 app.get('/todos',(req,res)=>{
-  res.status(200).json(todos)
+  res.json(todos)
 })
 
 // adding new task to todo list
@@ -77,44 +78,45 @@ app.post('/todos',(req,res)=>{
   fs.readFile(filePath,'utf8',(err,fileContent)=>{
     if (err)return 
     contentToVerify = fileContent
-  })
-  console.log(contentToVerify)
-  let comma = ''
-  if (todos.length>0 || contentToVerify !== '')comma=','
-  todos.push(task)
-  ans  =  comma +JSON.stringify(task);
-  fs.appendFile(filePath,ans,(error)=>{
-    if (error) {
-      console.log('error while appending',error)
-      res.status(500).json('error while appending')
+    let comma = ''
+    if (todos.length>0 || contentToVerify !== '')comma=','
+    todos.push(task)
+    ans  =  comma +JSON.stringify(task);
+    fs.appendFile(filePath,ans,(error)=>{
       return 
-    }
-    console.log('done appending new tasks')
-    return 
+    })
+    res.status(201).json({
+      id:id
+    })
+    return
   })
-  res.status(201).json(id)
+  
 
 })
 
 // fetching task with specific todoId
-app.get('/todos:id',(req,res)=>{
+app.get('/todos/:id',(req,res)=>{
   const todoId = parseInt(req.params.id)
   let answer_idx = todos.findIndex(el => el.id == todoId);
   if(answer_idx===-1) {
-    res.status(404).json(`cant find task with id ${todoId}`)
+    res.status(404).json({
+      message:"Todo doesen't exists!" 
+    })
     return 
   }
-  res.status(200).json(todos[answer_idx])
+  res.json(todos[answer_idx])
   
 })
 
 // updating the task with specific todoId and updating file too
-app.put('/todos:id',(req,res)=>{
+app.put('/todos/:id',(req,res)=>{
   let todoID = req.params.id;
   let newTask = req.body
   let answer_idx = todos.findIndex(el=>el.id==todoID);
   if (answer_idx===-1){
-    res.status(404).json('cant find task with',todoID)
+    res.status(404).json({
+      message:"Todo doesen't exists!"
+    })
     return
   }
   newTask["id"] = todoID
@@ -122,19 +124,20 @@ app.put('/todos:id',(req,res)=>{
   const newContentOfFile = JSON.stringify(todos).slice(1,-1);
   fs.writeFile(filePath,newContentOfFile,(error)=>{
     if (error)return 
-
+    res.status(200).send(todos[answer_idx])
   })
-  res.status(200).json("done updating")
   
-
+  
 })
 
 // DELETE a task with specific todoId and update the file too
-app.delete('/todos:id',(req,res)=>{
+app.delete('/todos/:id',(req,res)=>{
   let todoID = req.params.id;
   let answer_idx = todos.findIndex(el=>el.id==todoID);
   if (answer_idx===-1){
-    res.status(404).json('cant find task with',todoID)
+    res.status(404).json({
+      message: "Todo doesen't exists!"
+    })
     return
   }
   todos[answer_idx] = '';
@@ -143,18 +146,21 @@ app.delete('/todos:id',(req,res)=>{
   const newContentOfFile = JSON.stringify(todos).slice(1,-1);
   fs.writeFile(filePath,newContentOfFile,(error)=>{
     if (error)return 
+    res.status(200).json({
+      message: "Todo deleted successfully"
+    })
   })
-  res.status(200).json("done deleting")
+  
 })
+
+app.use((err,req, res, next) => {
+  res.status(404).send("Route not found!");
+});
 
 // listiening
 app.listen(3000,()=>{
-  console.log('listenening')
+  // console.log('listenening')
 })
 
 
 module.exports = app;
-
-
-  
-// module.exports = app;
