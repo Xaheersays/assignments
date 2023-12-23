@@ -1,5 +1,5 @@
-const addToDb = async(p,collection)=>{
-    const doc = new collection(p);
+const addToDb = async(doc)=>{
+    // const doc = new collection(p);
     try{
         await doc.save();
         return {
@@ -12,7 +12,6 @@ const addToDb = async(p,collection)=>{
             message:'document could not be saved due to internal error'
         }
     }
-
 }
 
 module.exports = {

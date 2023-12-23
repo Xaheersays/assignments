@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 // Connect to MongoDB
 mongoose.connect('mongodb+srv://shzaheer514:zaheer514@cluster0.jgq64hk.mongodb.net/Udemy');
+const ObjectId = mongoose.Types.ObjectId;
 
 // Define schemas
 const AdminSchema = new mongoose.Schema({
@@ -14,7 +15,8 @@ const AdminSchema = new mongoose.Schema({
 const UserSchema = new mongoose.Schema({
     // Schema definition here
     username :String,
-    password :String
+    password :String,
+    purchased :[]
 });
 
 
@@ -24,7 +26,9 @@ const CourseSchema = new mongoose.Schema({
     title:String,
     description:String,
     price:Number,
-    imageLink:String
+    imageLink:String,
+    published:Boolean,
+    
 });
 
 const Admin = mongoose.model('Admin', AdminSchema);
@@ -34,5 +38,6 @@ const Course = mongoose.model('Course', CourseSchema);
 module.exports = {
     Admin,
     User,
-    Course
+    Course,
+    ObjectId
 }

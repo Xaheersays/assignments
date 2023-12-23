@@ -1,7 +1,9 @@
 const isThereAlready = async (username,password,collection) =>{
-    console.log('inside already')
+    
     try{
+        console.log('inside istherealready',username,password,collection)
         const result = await collection.findOne({username:username,password:password});
+        console.log(result)
         if (!result)return false;
         return true;
     }catch(e){  
