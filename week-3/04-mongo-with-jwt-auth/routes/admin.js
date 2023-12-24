@@ -5,6 +5,7 @@ const {isAlreadyPresent} = require('../Utilities/IsAlreadyPresent.js');
 const { Admin, Course } = require("../db/index.js");
 const { addToDb } = require("../Utilities/addToDb.js");
 const { getSignature } = require("../Utilities/jwtSignature.js");
+const { getData } = require("../Utilities/getData.js");
 
 // Admin Routes
 router.post('/signup', async(req, res) => {
@@ -47,9 +48,10 @@ router.post('/courses', adminMiddleware, async(req, res) => {
     })
 });
 
-router.get('/courses', adminMiddleware, (req, res) => {
+router.get('/courses', adminMiddleware,async (req, res) => {
     // Implement fetching all courses logic
-
+    const data = await getData(Course)
+    res.status(200).json({courses:data})
 });
 
 module.exports = router;

@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 // Connect to MongoDB
 mongoose.connect('mongodb+srv://shzaheer514:zaheer514@cluster0.jgq64hk.mongodb.net/UdemyJWT');
+const ObjectId = mongoose.Types.ObjectId;
 
 // Define schemas
 const AdminSchema = new mongoose.Schema({
@@ -34,5 +35,6 @@ const Course = mongoose.model('Course', CourseSchema);
 module.exports = {
     Admin,
     User,
-    Course
+    Course,
+    ObjectId
 }
