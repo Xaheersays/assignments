@@ -7,10 +7,10 @@ function Input({todos,setTodos}) {
         console.log('clicked')
         const title = titleRef.current.value
         const desc  = descRef.current.value
-        if (title.length===0 || desc.length===0 || todos.length===0)return 
-        console.log(title,desc)
+        if (title.length===0 || desc.length===0)return 
         setTodos(prev=>[...prev,{title,desc}])
-        // console.log(todos)
+        // titleRef.current.value = '';
+        // descRef.current.value = '';
     }
     return (
         <div className='bg-slate-500 rounded-md'>
