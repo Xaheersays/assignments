@@ -12,13 +12,20 @@ const Assignment3 = () => {
     ]);
 
     // Your code starts here
-    const totalValue = 0;
+    const totalValue = useMemo(()=>{
+        // console.log('expensive opern')
+        let total = 0;
+        items.forEach((el)=>total+=el.value)
+        return total
+
+    },[items])
+    
     // Your code ends here
     return (
         <div>
             <ul>
                 {items.map((item, index) => (
-                    <li key={index}>{item.name} - Price: ${item.value}</li>
+                    <li  key={index}>{item.name} - Price: ${item.value}</li>
                 ))}
             </ul>
             <p>Total Value: {totalValue}</p>
